@@ -1,0 +1,8 @@
+TABLE_NOT_FOUND = "La groupe recherchée n'existe pas"
+INVALID_FIRSTNAME = "Le prénom fourni ne remplit pas les critères requis"
+INVALID_LASTNAME = "Le nom fourni ne remplit pas les critères requis"
+TABLE_FULL = "Le groupe est déjà complet"
+TABLE_NOT_FULL = "Le groupe n'est pas encore complet"
+MEMBER_ALREADY_EXISTS = "Cet utilisateur est déjà dans le groupe"
+TABLE_COULDNT_BE_SAVED = "Le groupe n'a pas pu être enregistré"
+WRONG_TABLE_LOCATION = "La table n'est pas valide"
