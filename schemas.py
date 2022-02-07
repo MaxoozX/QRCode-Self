@@ -13,6 +13,7 @@ class TableMember(BaseModel):
 class ClassicResponseModel(BaseModel):
     status: str
     message: Optional[str] = None
+    content: Optional[str] = None
 
 class TableMembersModel(BaseModel):
     __root__: List[TableMember]

@@ -1,11 +1,10 @@
 from uuid import uuid4, UUID
-from datetime import datetime
-from typing import Optional, List
 
-from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+# Local imports
 
 import error_messages as ERROR
 from const import MAX_TABLE_SIZE, SHEET_ID, SHEET_NAME, GOOGLE_APPLICATION_CREDENTIALS
