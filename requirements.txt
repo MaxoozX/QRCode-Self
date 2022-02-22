@@ -1,5 +1,7 @@
 uvicorn
+uvicorn[standard]
 fastapi
+fastapi-socketio
 pydantic
 google-api-python-client
 google-auth-httplib2

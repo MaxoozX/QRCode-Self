@@ -8,7 +8,7 @@ class TableMember(BaseModel):
     lastname: str
     classID: str
     time: Optional[str] = None
-    ID: Optional[UUID] = None
+    ID: Optional[str] = None
 
 class ClassicResponseModel(BaseModel):
     status: str

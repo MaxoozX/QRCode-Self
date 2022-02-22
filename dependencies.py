@@ -1,14 +1,24 @@
 import random
+import json
 
-from uuid import uuid4
+from uuid import uuid4, UUID
 from datetime import datetime
 
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            # if the obj is uuid, we simply return the value of uuid
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
 
 def isValidName(name: str) -> bool:
     return bool(name)
 
 def getCurrentTime() -> str:
     return datetime.now().strftime("%Y/%m/%d %H:%M")
+
+def compute_query_string(query_string: str) -> dict[str, str]:
+    return dict([param.split("=") for param in query_string.split("&")])
 
 def dummyData():
 

@@ -1,4 +1,5 @@
 TABLE_NOT_FOUND = "La groupe recherchée n'existe pas"
+USER_NOT_FOUND = "Le membre n'existe pas"
 INVALID_FIRSTNAME = "Le prénom fourni ne remplit pas les critères requis"
 INVALID_LASTNAME = "Le nom fourni ne remplit pas les critères requis"
 TABLE_FULL = "Le groupe est déjà complet"

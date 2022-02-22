@@ -1,17 +1,18 @@
+import asyncio
 from uuid import uuid4, UUID
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+import socketio
 
-# Local imports
-
+# Imports locaux
 import error_messages as ERROR
 from const import MAX_TABLE_SIZE, SHEET_ID, SHEET_NAME, GOOGLE_APPLICATION_CREDENTIALS
 
 from GoogleSheetTableLogger import GoogleSheetTableLogger
 from schemas import TableMember, ClassicResponseModel, TableMembersModel, SettleTableModel
-from dependencies import isValidName, getCurrentTime
+from dependencies import isValidName, getCurrentTime, compute_query_string, UUIDEncoder
 
 #----------------------------------------------------------#
 # Gestion des données
@@ -32,6 +33,37 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins='*'
+)
+
+# La partie socketio
+
+async def notify_change(room_ID: UUID) -> None:
+
+    asyncio.get_event_loop().create_task(sio.emit(
+        "table_update",
+        {
+            "members": tables[room_ID]
+        },
+        room=str(room_ID)
+    ))
+    return
+
+@sio.on("connect")
+async def handle_connect(sid, environ, auth):
+    query = compute_query_string(environ["QUERY_STRING"])
+    room_ID = query["room_id"]
+    if not room_ID or room_ID == "undefined":
+        return False
+
+    sio.enter_room(sid, room_ID)
+
+    return "OK"
+
+# La partie API
 
 @app.get("/")
 async def root():
@@ -108,12 +140,14 @@ async def add_member_route(member: TableMember, tableid: UUID):
             )
 
     cur_table.append({
-        "ID": uuid4(),
+        "ID": str(uuid4()),
         "time": getCurrentTime(),
         "firstname": firstname,
         "lastname": lastname,
         "classID": classID,
     })
+
+    await notify_change(tableid)
 
     return {"status": "ok"}
 
@@ -129,12 +163,24 @@ async def remove_member_route(tableid: UUID, memberid: UUID):
             }
         )
 
+    memberid = str(memberid)
     cur_table = tables[tableid]
 
     for idx, el in enumerate(cur_table):
         if el["ID"] == memberid:
             print(el)
             cur_table.pop(idx)
+            break
+    else :
+        return JSONResponse(
+            status_code=404,
+            content={
+                "status": "member not found",
+                "message": ERROR.USER_NOT_FOUND
+            }
+        )
+
+    await notify_change(tableid)
 
     return {"status": "ok"}
 
@@ -190,7 +236,6 @@ async def settle_table_route(tableid: UUID, body: SettleTableModel):
         )
 
     cur_time = getCurrentTime()
-    # Change the times to match the current time (later)
     for member in cur_table:
         member["table"] = location
         member["time"] = cur_time
@@ -209,6 +254,7 @@ async def settle_table_route(tableid: UUID, body: SettleTableModel):
 
     return {"status": "ok"}
 
+app = socketio.ASGIApp(sio, other_asgi_app=app)
 
 # TODO:
 
